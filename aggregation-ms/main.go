@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"time"
 
@@ -10,10 +11,13 @@ import (
 	msg "github.com/szymon676/ogmicros/protos"
 )
 
-var msgChan = make(chan string)
+var (
+	msgChan   = make(chan string)
+	stockName = flag.String("stock", "TSLA", "stockname for getting recommendations")
+)
 
 func fetchData() error {
-	res, err := httpclient.Get("http://127.0.0.1:8000/recommendation/TSLA")
+	res, err := httpclient.Get("http://127.0.0.1:8000/recommendation/" + *stockName)
 	if err != nil {
 		return err
 	}
@@ -28,6 +32,7 @@ func fetchData() error {
 }
 
 func main() {
+	flag.Parse()
 	e := actor.NewEngine()
 	r := remote.New(e, remote.Config{ListenAddr: "127.0.0.1:3000"})
 	e.WithRemote(r)
